@@ -76,6 +76,7 @@ public class MainActivity extends BaseActivity implements FeedAdapter.OnFeedItem
         adapter = new FeedAdapter(this);
         adapter.setOnFeedItemClickListener(this); //设置item的点击事件 回调
         rvPost.setAdapter(adapter);
+        //recyclerview滚动的时候如果存在contextMenuView就将其隐藏
         rvPost.setOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -181,6 +182,7 @@ public class MainActivity extends BaseActivity implements FeedAdapter.OnFeedItem
         FeedContextMenuManager.getInstance().toggleContextMenuFromView(v, position, this);
     }
 
+    /*************************ContextMenuView的点回调方法******************************/
     @Override
     public void onReportClick(int feedItem) {
         FeedContextMenuManager.getInstance().hideContextMenu();
