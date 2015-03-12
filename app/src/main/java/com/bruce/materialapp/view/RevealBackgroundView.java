@@ -74,6 +74,14 @@ public class RevealBackgroundView extends View {
     }
 
     /**
+     * 调用终止绘制
+     */
+    public void setToFinishedFrame() {
+        changeState(STATE_FINISHED);
+        invalidate();
+    }
+    
+    /**
      * 对外抛出设置开始绘制的方法
      *
      * @param location 点击的点

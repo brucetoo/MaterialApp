@@ -4,15 +4,19 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <com.bruce.materialapp.view.RevealBackgroundView
+        android:id="@+id/vRevealBackg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+    
     <include
         layout="@layout/toolbar" />
 
     <android.support.v7.widget.RecyclerView
+        android:layout_below="@+id/toolbar"
         android:id="@+id/rvUserProfile"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:paddingTop="?attr/actionBarSize" />
+        android:layout_height="match_parent" />
 
     <ImageButton
         android:id="@+id/btnCreate"

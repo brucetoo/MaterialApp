@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+ <!--android:clipChildren属性的分析
+ * 该属性默认值为android:clipChildren="true"
+ * 单从字面意思理解clipChildren的意思是:裁剪(缩短)孩子
+ * 我们将其值设置为false后那么当子控件的高度高于父控件时
+ * 也会完全显示,而不会被压缩.
+ * 比如在此例中:
+ * 父类线性布局高度指定为50dip
+ * 但是第二个ImageView的高度设置为了70dip.
+ * 但是该图片依然正常地完整显示,不会只显示一部分
+ * 在此可以设置 android:clipChildren="true"观察效果 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:id="@+id/vUserProfileRoot"
+    android:background="@color/style_color_primary"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:padding="24dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <LinearLayout
+        android:clipChildren="false"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/ivUserProfilePhoto"
+            android:layout_width="@dimen/user_profile_avatar_size"
+            android:layout_height="@dimen/user_profile_avatar_size"
+            android:layout_marginRight="16dp" />
+
+        <LinearLayout
+            android:id="@+id/vUserDetails"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Bruce Too"
+                android:textColor="#ffffff"
+                android:textSize="24sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="brucetoo14@gmail.com"
+                android:textSize="12sp"
+                android:textColor="#bbbbbb" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:text="Mobile development passionate."
+                android:textColor="#ffffff" />
+
+            <Button
+                android:id="@+id/btnFollow"
+                android:layout_width="match_parent"
+                android:background="@drawable/btn_following"
+                android:textColor="#ffffff"
+                android:layout_height="24dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginRight="24dp"
+                android:textSize="12sp"
+                android:text="following" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/vUserStats"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="16dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1167"
+                android:textColor="#ffffff"
+                android:textSize="20sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="posts"
+                android:textColor="#ffffff"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="396"
+                android:textColor="#ffffff"
+                android:textSize="20sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="followers"
+                android:textColor="#ffffff"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="485"
+                android:textColor="#ffffff"
+                android:textSize="20sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="following"
+                android:textColor="#ffffff"
+                android:textSize="12sp" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

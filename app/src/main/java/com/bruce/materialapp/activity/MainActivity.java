@@ -177,7 +177,11 @@ public class MainActivity extends BaseActivity implements FeedAdapter.OnFeedItem
      */
     @Override
     public void onProfileClick(View v) {
-        
+        int[] startLocation = new int[2];
+        v.getLocationOnScreen(startLocation);
+        startLocation[0] += v.getWidth() / 2; //微调点击的坐标
+        UserProfileActivity.startUserProfileFromLocation(startLocation,this);
+        overridePendingTransition(0,0);
     }
 
     /*************************ContextMenuView的点回调方法******************************/
