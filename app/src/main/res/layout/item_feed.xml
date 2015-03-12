@@ -18,10 +18,33 @@
             android:layout_height="wrap_content"
             android:src="@drawable/ic_feed_top" />
 
-        <com.bruce.materialapp.view.SquaredImageView
-            android:id="@+id/ivFeedCenter"
+        <com.bruce.materialapp.view.SquaredFrameLayout
+            android:id="@+id/vImageRoot"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/ivFeedCenter"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop" />
+
+            <View
+                android:id="@+id/vBgLike"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_like_circle_background"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/ivLike"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="center"
+                android:src="@drawable/ic_heart_outline_white"
+                android:visibility="gone" />
+        </com.bruce.materialapp.view.SquaredFrameLayout>
+
 
         <ImageView
             android:id="@+id/ivFeedBottom"

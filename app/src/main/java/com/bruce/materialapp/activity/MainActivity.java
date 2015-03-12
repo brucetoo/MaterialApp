@@ -161,17 +161,6 @@ public class MainActivity extends BaseActivity implements FeedAdapter.OnFeedItem
     }
 
     /**
-     * like点击事件
-     *
-     * @param v
-     * @param position
-     */
-    @Override
-    public void onLikeClick(View v, int position) {
-
-    }
-
-    /**
      * more点击事件
      *
      * @param v
