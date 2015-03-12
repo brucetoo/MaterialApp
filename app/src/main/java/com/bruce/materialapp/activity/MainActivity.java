@@ -171,6 +171,15 @@ public class MainActivity extends BaseActivity implements FeedAdapter.OnFeedItem
         FeedContextMenuManager.getInstance().toggleContextMenuFromView(v, position, this);
     }
 
+    /**
+     * 头像点击事件*
+     * @param v
+     */
+    @Override
+    public void onProfileClick(View v) {
+        
+    }
+
     /*************************ContextMenuView的点回调方法******************************/
     @Override
     public void onReportClick(int feedItem) {

@@ -81,6 +81,9 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         holder.btnMore.setOnClickListener(this);
         holder.btnMore.setTag(i);
         
+        //头像点击事件
+        holder.ivUserProfile.setOnClickListener(this);
+       
         //图片的点击事件
         holder.ivFeedCenter.setOnClickListener(this);
         holder.ivFeedCenter.setTag(holder);
@@ -292,6 +295,8 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         View vBgLike;
         @InjectView(R.id.ivLike)
         ImageView ivLike;
+        @InjectView(R.id.ivUserProfile)
+        ImageView ivUserProfile;
         public FeedViewHolder(View itemView) {
             super(itemView);
             ButterKnife.inject(this, itemView);
@@ -355,6 +360,8 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                     updateLikesCounter(holder, true, true);
                     updateHeartButton(holder,false); //不执行动画直接变灰
                 }
+            }else if(v.getId() == R.id.ivUserProfile){
+                onFeedItemClickListener.onProfileClick(v);
             }
 
         }
@@ -368,5 +375,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         public void onCommentsClick(View v, int position);
 
         public void onMoreClick(View v, int position);
+        
+        public void onProfileClick(View v);
     }
 }
