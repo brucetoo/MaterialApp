@@ -5,7 +5,7 @@
     android:orientation="vertical">
 
     <com.bruce.materialapp.view.RevealBackgroundView
-        android:id="@+id/vRevealBackg"
+        android:id="@+id/vRevealBackground"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
     
@@ -13,7 +13,7 @@
         layout="@layout/toolbar" />
 
     <android.support.v7.widget.RecyclerView
-        android:layout_below="@+id/toolbar"
+        android:paddingTop="?attr/actionBarSize"
         android:id="@+id/rvUserProfile"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
