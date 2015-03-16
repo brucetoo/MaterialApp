@@ -1,12 +1,18 @@
 package com.bruce.materialapp.activity;
 
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 
 import com.bruce.materialapp.R;
+import com.bruce.materialapp.util.DrawerLayoutInstaller;
+import com.bruce.materialapp.util.Utils;
+import com.bruce.materialapp.view.GlobalMenuView;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -18,7 +24,7 @@ import butterknife.Optional;
  * At 9:42
  * About MaterialApp
  */
-public class BaseActivity extends ActionBarActivity {
+public class BaseActivity extends ActionBarActivity implements GlobalMenuView.OnHeaderClickListener {
     
     // Optional except An exception will be thrown if the target view cannot be found
     @Optional
@@ -30,12 +36,29 @@ public class BaseActivity extends ActionBarActivity {
     ImageView ivLogo;
 
     protected MenuItem inboxMenuItem;
+    private DrawerLayout drawerLayout;
     
     @Override
     public void setContentView(int layoutResID) {
         super.setContentView(layoutResID);
         ButterKnife.inject(this);
         setToolBar();
+        setupDrawer();
+    }
+
+    private void setupDrawer() {
+        GlobalMenuView menuView = new GlobalMenuView(this);
+        menuView.setOnHeaderClickListener(this);
+        /**
+         * 只支持像drawer_root一样 DrawerLayout作为根节点，且只有两个子view的情况
+         * 实际情况也是这样的居多* *
+         */
+        drawerLayout = DrawerLayoutInstaller.from(this)
+                .drawerRoot(R.layout.drawer_root)
+                .drawerLeftView(menuView)
+                .drawerLeftWidth(Utils.dpToPx(300))
+                .withNavigationIconToggler(toolbar)
+                .build();
     }
 
     private void setToolBar() {
@@ -67,5 +90,21 @@ public class BaseActivity extends ActionBarActivity {
 //        }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * drawerlayout头部点击事件
+     * @param v
+     */
+    @Override
+    public void onGlobalMenuHeaderClick(View v) {
+        //关闭drawerlayout
+        drawerLayout.closeDrawer(Gravity.START);
+        //启动个人页
+        int[] startLocation = new int[2];
+        v.getLocationOnScreen(startLocation);
+        startLocation[1] += v.getHeight() / 2; //微调点击的坐标
+        UserProfileActivity.startUserProfileFromLocation(startLocation,this);
+        overridePendingTransition(0,0);
     }
 }
