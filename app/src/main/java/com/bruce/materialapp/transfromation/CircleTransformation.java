@@ -19,22 +19,27 @@ public class CircleTransformation implements Transformation {
     public Bitmap transform(Bitmap source) {
         int size = Math.min(source.getWidth(), source.getHeight());
 
+        //起始绘制的点
         int x = (source.getWidth() - size) / 2;
         int y = (source.getHeight() - size) / 2;
-
+        //绘制大小 等于size的bitmap
         Bitmap squaredBitmap = Bitmap.createBitmap(source, x, y, size, size);
         if (squaredBitmap != source) {
             source.recycle();
         }
 
         Bitmap bitmap = Bitmap.createBitmap(size, size, source.getConfig());
-
+        //画布
         Canvas canvas = new Canvas(bitmap);
-
+        //画笔 画头像
         Paint avatarPaint = new Paint();
+        /**TileMode.CLAMP
+         * replicate the edge color if the shader draws outside of its
+         * original bounds
+         */
         BitmapShader shader = new BitmapShader(squaredBitmap, BitmapShader.TileMode.CLAMP, BitmapShader.TileMode.CLAMP);
         avatarPaint.setShader(shader);
-
+        //画笔 画轮廓
         Paint outlinePaint = new Paint();
         outlinePaint.setColor(Color.WHITE);
         outlinePaint.setStyle(Paint.Style.STROKE);
