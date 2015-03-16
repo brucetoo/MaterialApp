@@ -20,6 +20,7 @@ import com.bruce.materialapp.view.FeedContextMenu;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnClick;
 
 
 public class MainActivity extends BaseActivity implements FeedAdapter.OnFeedItemClickListener
@@ -29,6 +30,8 @@ public class MainActivity extends BaseActivity implements FeedAdapter.OnFeedItem
     RecyclerView rvPost;
     @InjectView(R.id.ibtCamera)
     ImageButton ibtCamera;
+//    @InjectView(R.id.btnCreate)
+//    ImageButton btnCreate;
 
     private FeedAdapter adapter;
     private boolean pendingIntroAnimation;   //界面进入的执行动画
@@ -182,6 +185,18 @@ public class MainActivity extends BaseActivity implements FeedAdapter.OnFeedItem
         startLocation[0] += v.getWidth() / 2; //微调点击的坐标
         UserProfileActivity.startUserProfileFromLocation(startLocation,this);
         overridePendingTransition(0,0);
+    }
+
+    /**
+     * FAB点击进行拍照处理
+     */
+    @OnClick(R.id.ibtCamera)
+    public void onTakePhotoClick(){
+        int[] startingLocation = new int[2];
+        ibtCamera.getLocationOnScreen(startingLocation);
+        startingLocation[0] += ibtCamera.getWidth() / 2;
+        TakePhotoActivity.startCameraFromLocation(startingLocation, this);
+        overridePendingTransition(0, 0);
     }
 
     /*************************ContextMenuView的点回调方法******************************/

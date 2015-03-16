@@ -80,7 +80,7 @@ public class RevealBackgroundView extends View {
         changeState(STATE_FINISHED);
         invalidate();
     }
-    
+
     /**
      * 对外抛出设置开始绘制的方法
      *
@@ -119,6 +119,14 @@ public class RevealBackgroundView extends View {
         }
     }
 
+    /**
+     * 设置画笔颜色*
+     * @param color
+     */
+    public void setFillPaintColor(int color) {
+        fillPaint.setColor(color);
+    }
+    
     /**
      * 设置状态变化的监听*
      *

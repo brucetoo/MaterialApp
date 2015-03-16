@@ -43,9 +43,18 @@ public class BaseActivity extends ActionBarActivity implements GlobalMenuView.On
         super.setContentView(layoutResID);
         ButterKnife.inject(this);
         setToolBar();
-        setupDrawer();
+        if(shouldInstallDrawer())
+           setupDrawer();
     }
 
+    /**
+     * 是否需要设置drawerLayout* 
+     * @return
+     */
+    protected boolean shouldInstallDrawer() {
+        return true;
+    }
+    
     private void setupDrawer() {
         GlobalMenuView menuView = new GlobalMenuView(this);
         menuView.setOnHeaderClickListener(this);
@@ -62,8 +71,10 @@ public class BaseActivity extends ActionBarActivity implements GlobalMenuView.On
     }
 
     private void setToolBar() {
-        setSupportActionBar(toolbar);
-        toolbar.setNavigationIcon(R.drawable.ic_menu_white);
+        if(toolbar != null) {
+            setSupportActionBar(toolbar);
+            toolbar.setNavigationIcon(R.drawable.ic_menu_white);
+        }
     }
 
     @Override
