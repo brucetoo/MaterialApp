@@ -3,7 +3,9 @@ package com.bruce.materialapp.activity;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
@@ -37,6 +39,7 @@ public class MainActivity extends BaseActivity implements FeedAdapter.OnFeedItem
     private boolean pendingIntroAnimation;   //界面进入的执行动画
     private static final int TOOLBAR_ANIMATE_TIME = 500;  //toolbar 动画时间
     private static final int CONTENT_ANIMATE_TIME = 500;  //recycler动画时间
+    public static final String ACTION_SHOW_LOADING_ITEM = "action_show_loading_item"; 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +52,25 @@ public class MainActivity extends BaseActivity implements FeedAdapter.OnFeedItem
 
         setPost();
     }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (ACTION_SHOW_LOADING_ITEM.equals(intent.getAction())) {
+            showFeedLoadingItemDelayed((Uri)intent.getParcelableExtra("photoUri"));
+        }
+    }
+
+    private void showFeedLoadingItemDelayed(final Uri photoUri) {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                rvPost.smoothScrollToPosition(0);
+                adapter.showLoadingView(photoUri);
+            }
+        }, 500);
+    }
+
 
     private void setPost() {
         //LayoutManager预加载时为每个item增加额外空间layout space

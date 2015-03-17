@@ -102,6 +102,7 @@
                 <ImageButton
                     android:layout_width="48dp"
                     android:layout_height="48dp"
+                    android:id="@+id/btnAccept"
                     android:background="@drawable/btn_default_light"
                     android:src="@drawable/ic_arrow_forward_white_24dp" />
             </LinearLayout>

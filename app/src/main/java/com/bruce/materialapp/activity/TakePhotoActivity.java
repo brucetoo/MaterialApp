@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.hardware.Camera;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.widget.LinearLayoutManager;
@@ -30,6 +31,8 @@ import com.commonsware.cwac.camera.CameraHostProvider;
 import com.commonsware.cwac.camera.CameraView;
 import com.commonsware.cwac.camera.PictureTransaction;
 import com.commonsware.cwac.camera.SimpleCameraHost;
+
+import java.io.File;
 
 import butterknife.InjectView;
 import butterknife.OnClick;
@@ -69,10 +72,11 @@ public class TakePhotoActivity extends BaseActivity implements RevealBackgroundV
     RecyclerView rvFilters;  //图片滤镜 recyclerView
     @InjectView(R.id.btnTakePhoto)
     Button btnTakePhoto;  // 拍照按钮
-    
+
 
     private boolean pendingIntro;
     private int currentState;
+    private File photoPath;
 
     /**
      * 从外activity中启动该activity
@@ -148,10 +152,15 @@ public class TakePhotoActivity extends BaseActivity implements RevealBackgroundV
         cameraView.onPause();
     }
 
+    @OnClick(R.id.btnAccept)
+    public void onAcceptClick() {
+        PublishActivity.openWithPhotoUri(this, Uri.fromFile(photoPath));
+    }
+
     @OnClick(R.id.btnTakePhoto)
     public void onTakePhotoClick() {
         btnTakePhoto.setEnabled(false);
-        cameraView.takePicture(true, false);
+        cameraView.takePicture(true, true);
         animateShutter();
     }
 
@@ -249,6 +258,12 @@ public class TakePhotoActivity extends BaseActivity implements RevealBackgroundV
                     showTakenPicture(bitmap);
                 }
             });
+        }
+
+        @Override
+        public void saveImage(PictureTransaction xact, byte[] image) {
+            super.saveImage(xact, image);
+            photoPath = getPhotoPath();
         }
     }
 

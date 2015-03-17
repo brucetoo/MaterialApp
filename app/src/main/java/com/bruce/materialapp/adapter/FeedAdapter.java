@@ -5,10 +5,12 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.OvershootInterpolator;
@@ -18,6 +20,8 @@ import android.widget.TextSwitcher;
 
 import com.bruce.materialapp.R;
 import com.bruce.materialapp.util.Utils;
+import com.bruce.materialapp.view.SendingProgressView;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,12 +33,25 @@ import butterknife.InjectView;
 
 /**
  * Created by n1007 on 2015/3/10.
+ * RecyclerView的更新特新---局部更新,对单个Item的增加，删除，更新三个状态进行更新*
+ * notifyItemChanged()  //只更新某个item的变化
+ * notifyItemInserted()*
+ * 关于局部更新的一个优化方案
+ * 优化
+   虽然只更新单个item，不会造成闪烁，但是，如果单个item都很复杂，
+   比如，item中需要从网络上加载图片等等。为了避免多次刷新照成的闪烁，
+   我们可以在加载的时候，为ImageView设置一个Tag，比如imageView.setTag(image_url),
+   下一次再加载之前，首先获取Tag，比如imageUrl = imageView.getTag(),如果此时的地址和之前的地址一样，
+   我们就不需要加载了，如果不一样，再加载。* * 
  */
 public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements View.OnClickListener {
     private static final int ANIMATED_ITEMS_COUNT = 1; //动画执行的最少Item数
     private int lastAnimatedPosition = -1; //上一个执行动画的位置
     private int itemsCount = 0;
     private Context context;
+    //recyclerView item的两种type,这里有些不规范
+    private static final int VIEW_TYPE_DEFAULT = 1;
+    private static final int VIEW_TYPE_LOADER = 2;
 
     private OnFeedItemClickListener onFeedItemClickListener;
     //记录每个item对应的likesCount数
@@ -43,6 +60,10 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
     private final Map<RecyclerView.ViewHolder, AnimatorSet> likeAnimations = new HashMap<>();
     //已经点赞的item
     private final ArrayList<Integer> likedPositions = new ArrayList<>();
+    //judge item is LoadingView or not
+    private boolean showLoadingView = false;
+    // intent photo Uri
+    private Uri photoUri;
 
     public FeedAdapter(Context context) {
         this.context = context;
@@ -50,8 +71,29 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_feed, viewGroup, false);
+        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_feed_loading, viewGroup, false);
+//        if(i == VIEW_TYPE_DEFAULT) {
+//            view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_feed, viewGroup, false);
+//        }else if(i==VIEW_TYPE_LOADER){
+//            view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_feed_loading,viewGroup,false);
+//        }
         return new FeedViewHolder(view);
+    }
+
+    public void showLoadingView(Uri photoUri) {
+        showLoadingView = true;
+        this.photoUri = photoUri;
+      //  notifyItemInserted(0);
+        notifyItemChanged(0);
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (showLoadingView) {
+            return VIEW_TYPE_LOADER;
+        } else {
+            return VIEW_TYPE_DEFAULT;
+        }
     }
 
     @Override
@@ -60,13 +102,50 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         //绑定数据的时候执行动画
         runEnterAnimation(viewHolder.itemView, i);
 
-        FeedViewHolder holder = (FeedViewHolder) viewHolder;
-        if (i % 2 == 0) {
-            holder.ivFeedCenter.setImageResource(R.drawable.img_feed_center_1);
-            holder.ivFeedBottom.setImageResource(R.drawable.img_feed_bottom_1);
-        } else {
-            holder.ivFeedCenter.setImageResource(R.drawable.img_feed_center_2);
+        final FeedViewHolder holder = (FeedViewHolder) viewHolder;
+        if (getItemViewType(i) == VIEW_TYPE_DEFAULT) {
+            holder.flLoadingRoot.setVisibility(View.GONE);
+            if (i % 2 == 0) {
+                holder.ivFeedCenter.setImageResource(R.drawable.img_feed_center_1);
+                holder.ivFeedBottom.setImageResource(R.drawable.img_feed_bottom_1);
+            } else {
+                holder.ivFeedCenter.setImageResource(R.drawable.img_feed_center_2);
+                holder.ivFeedBottom.setImageResource(R.drawable.img_feed_bottom_2);
+            }
+        } else if (getItemViewType(i) == VIEW_TYPE_LOADER) {
+            Picasso.with(context).load(photoUri).into(holder.ivFeedCenter);
+       //     Log.i("picasso-photouri:",photoUri);
+         //   holder.ivFeedCenter.setImageResource(R.drawable.img_feed_center_2);
             holder.ivFeedBottom.setImageResource(R.drawable.img_feed_bottom_2);
+            holder.flLoadingRoot.setVisibility(View.VISIBLE);
+            //remove sendingprogress's OnPreDrawListener
+            holder.vSendingProgress.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+                @Override
+                public boolean onPreDraw() {
+                    holder.vSendingProgress.getViewTreeObserver().removeOnPreDrawListener(this);
+                    //simulate Progerss running
+                    holder.vSendingProgress.simulateProgress();
+                    return false;
+                }
+            });
+            holder.vSendingProgress.setOnLoadingFinishedListener(new SendingProgressView.OnLoadingFinishedListener() {
+                @Override
+                public void onLoadingFinished() {
+                    holder.vSendingProgress.animate().scaleY(0).scaleX(0).setDuration(200).setStartDelay(100);
+                    holder.flLoadingRoot.animate().alpha(0).setDuration(200).setStartDelay(100)
+                            .setListener(new AnimatorListenerAdapter() {
+                                @Override
+                                public void onAnimationEnd(Animator animation) {
+                                    holder.vSendingProgress.setScaleX(0.1f);
+                                    holder.vSendingProgress.setScaleY(0.1f);
+                                    holder.vSendingProgress.setAlpha(1);
+                                    showLoadingView = false;
+                                    //   notifyItemChanged(0); //在第一条上插入数据
+                                }
+                            })
+                            .start();
+                }
+            });
         }
 
         //comment点击事件
@@ -80,10 +159,10 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         //more点击事件
         holder.btnMore.setOnClickListener(this);
         holder.btnMore.setTag(i);
-        
+
         //头像点击事件
         holder.ivUserProfile.setOnClickListener(this);
-       
+
         //图片的点击事件
         holder.ivFeedCenter.setOnClickListener(this);
         holder.ivFeedCenter.setTag(holder);
@@ -192,28 +271,29 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
 
     /**
      * 点击 图片的响应 和 点击赞心形图片的动画形同，保存在同一个map 里面 likeAnimations
+     *
      * @param holder
      */
-    private void animatePhotoLike(final FeedViewHolder holder){
-        
-        if(!likeAnimations.containsKey(holder)){
+    private void animatePhotoLike(final FeedViewHolder holder) {
+
+        if (!likeAnimations.containsKey(holder)) {
             //图片上的 动画图 显示
             holder.vBgLike.setVisibility(View.VISIBLE);
             holder.ivLike.setVisibility(View.VISIBLE);
 
             AnimatorSet animatorSet = new AnimatorSet();
-            likeAnimations.put(holder,animatorSet);
+            likeAnimations.put(holder, animatorSet);
 
             //背景图 从小变大
-            ObjectAnimator bgScaleYAnim = ObjectAnimator.ofFloat(holder.vBgLike,"scaleY",0.1f,1f);
+            ObjectAnimator bgScaleYAnim = ObjectAnimator.ofFloat(holder.vBgLike, "scaleY", 0.1f, 1f);
             bgScaleYAnim.setDuration(500);
             bgScaleYAnim.setInterpolator(new DecelerateInterpolator());
-            ObjectAnimator bgScaleXAnim = ObjectAnimator.ofFloat(holder.vBgLike,"scaleX",0.1f,1f);
+            ObjectAnimator bgScaleXAnim = ObjectAnimator.ofFloat(holder.vBgLike, "scaleX", 0.1f, 1f);
             bgScaleXAnim.setDuration(500);
             bgScaleXAnim.setInterpolator(new DecelerateInterpolator());
-            
+
             //背景图 从不透明变全透明
-            ObjectAnimator bgAlphaAnim = ObjectAnimator.ofFloat(holder.vBgLike,"alpha",1f,0f);
+            ObjectAnimator bgAlphaAnim = ObjectAnimator.ofFloat(holder.vBgLike, "alpha", 1f, 0f);
             bgAlphaAnim.setDuration(500);
             bgAlphaAnim.setInterpolator(new DecelerateInterpolator());
 
@@ -244,7 +324,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             animatorSet.start();
         }
     }
-    
+
     @Override
     public int getItemCount() {
         return itemsCount;
@@ -297,6 +377,12 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         ImageView ivLike;
         @InjectView(R.id.ivUserProfile)
         ImageView ivUserProfile;
+
+        @InjectView(R.id.flLoadingRoot)
+        View flLoadingRoot;
+        @InjectView(R.id.vSendingProgress)
+        SendingProgressView vSendingProgress;
+
         public FeedViewHolder(View itemView) {
             super(itemView);
             ButterKnife.inject(this, itemView);
@@ -331,7 +417,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
     @Override
     public void onClick(View v) {
         if (onFeedItemClickListener != null) {
-            if (v.getId() == R.id.btnComments) { 
+            if (v.getId() == R.id.btnComments) {
                 //v.getTag() 获取点击的Position
                 onFeedItemClickListener.onCommentsClick(v, (Integer) v.getTag());
             } else if (v.getId() == R.id.btnLike) {
@@ -341,26 +427,26 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                     updateLikesCounter(holder, true, false);
                     updateHeartButton(holder, true);
                 } else { //如果赞过
-                    likedPositions.remove((Object)holder.getPosition());
+                    likedPositions.remove((Object) holder.getPosition());
                     updateLikesCounter(holder, true, true);
-                    updateHeartButton(holder,false); //不执行动画直接变灰
+                    updateHeartButton(holder, false); //不执行动画直接变灰
                 }
             } else if (v.getId() == R.id.btnMore) {
                 onFeedItemClickListener.onMoreClick(v, (Integer) v.getTag());
-            }else if(v.getId() == R.id.ivFeedCenter){
+            } else if (v.getId() == R.id.ivFeedCenter) {
                 FeedViewHolder holder = (FeedViewHolder) v.getTag();
                 if (!likedPositions.contains(holder.getPosition())) { //如果没赞过
                     likedPositions.add(holder.getPosition());
                     updateLikesCounter(holder, true, false);
                     //点击图片的时候就不执行心形button的动画，只是改变其图片
-                    updateHeartButton(holder, false);  
+                    updateHeartButton(holder, false);
                     animatePhotoLike(holder);
                 } else { //如果赞过
-                    likedPositions.remove((Object)holder.getPosition());
+                    likedPositions.remove((Object) holder.getPosition());
                     updateLikesCounter(holder, true, true);
-                    updateHeartButton(holder,false); //不执行动画直接变灰
+                    updateHeartButton(holder, false); //不执行动画直接变灰
                 }
-            }else if(v.getId() == R.id.ivUserProfile){
+            } else if (v.getId() == R.id.ivUserProfile) {
                 onFeedItemClickListener.onProfileClick(v);
             }
 
@@ -375,7 +461,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         public void onCommentsClick(View v, int position);
 
         public void onMoreClick(View v, int position);
-        
+
         public void onProfileClick(View v);
     }
 }

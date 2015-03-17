@@ -39,6 +39,10 @@
         <activity
             android:name=".activity.TakePhotoActivity"
             android:theme="@style/AppTheme.TransparentActivity.FullScreen" />
+        <activity
+            android:name=".activity.PublishActivity"
+            android:windowSoftInputMode="stateHidden"
+            android:theme="@style/AppTheme" />
     </application>
 
 </manifest>
