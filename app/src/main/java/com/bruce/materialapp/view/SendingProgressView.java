@@ -98,7 +98,7 @@ public class SendingProgressView extends View {
     }
 
     /**
-     * 绘制中progress动态白边的绘制
+     * 绘制中progress动态白边的绘制(圆周)
      */
     private void setupProgressPaint() {
         progressPaint = new Paint();
@@ -109,7 +109,7 @@ public class SendingProgressView extends View {
     }
 
     /**
-     * 绘制后填充区域的绘制
+     * 内部圆的绘制
      */
     private void setupDonePaints() {
         doneBgPaint = new Paint();
@@ -158,6 +158,15 @@ public class SendingProgressView extends View {
         });
     }
 
+    /**
+     * canvas 大小变化时回调 
+     * 1.更新progress白边进度条显示*
+     * 2.* 
+     * @param w
+     * @param h
+     * @param oldw
+     * @param oldh
+     */
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
@@ -168,7 +177,7 @@ public class SendingProgressView extends View {
     }
 
     /**
-     * 更新此时progress的边界
+     * 更新此时progress的边界 就是包裹圆周的矩形区域
      */
     private void updateProgressBounds() {
         progressBounds = new RectF(
@@ -189,6 +198,9 @@ public class SendingProgressView extends View {
         srcCanvas.drawCircle(getWidth() / 2, getWidth() / 2, getWidth() / 2 - INNER_CIRCLE_PADDING, new Paint());
     }
 
+    /**
+     * 重设临时画布 canvas*
+     */
     private void resetTempCanvas() {
         tempBitmap = Bitmap.createBitmap(getWidth(), getWidth(), Bitmap.Config.ARGB_8888);
         tempCanvas = new Canvas(tempBitmap);
@@ -208,7 +220,17 @@ public class SendingProgressView extends View {
         canvas.drawBitmap(tempBitmap, 0, 0, null);
     }
 
+    /**
+     * 绘制圆周 
+     */
     private void drawArcForCurrentProgress() {
+        /**
+         * *oval :指定圆弧的外轮廓矩形区域。
+         *  startAngle: 圆弧起始角度，单位为度。
+            sweepAngle: 圆弧扫过的角度，顺时针方向，单位为度。
+            useCenter: 如果为True时，在绘制圆弧时将圆心包括在内，通常用来绘制扇形。
+            paint: 绘制圆弧的画板属性，如颜色，是否填充等。*
+         */
         tempCanvas.drawArc(progressBounds, -90f, 360 * currentProgress / 100, false, progressPaint);
     }
 
