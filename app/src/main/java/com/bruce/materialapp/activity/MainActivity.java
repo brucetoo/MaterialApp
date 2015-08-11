@@ -39,7 +39,7 @@ public class MainActivity extends BaseActivity implements FeedAdapter.OnFeedItem
     private boolean pendingIntroAnimation;   //界面进入的执行动画
     private static final int TOOLBAR_ANIMATE_TIME = 500;  //toolbar 动画时间
     private static final int CONTENT_ANIMATE_TIME = 500;  //recycler动画时间
-    public static final String ACTION_SHOW_LOADING_ITEM = "action_show_loading_item"; 
+    public static final String ACTION_SHOW_LOADING_ITEM = "action_show_loading_item";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +53,14 @@ public class MainActivity extends BaseActivity implements FeedAdapter.OnFeedItem
         setPost();
     }
 
+    /**
+     * PublishActivity：
+     * intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+     * 如果后台的mainActivity没有销毁,则重用以前的实例，没必要再新建一个实例
+     * 此时的执行顺序 onNewIntent onRestart onStart onResume.
+     * 但是MainActivity在后台可能随时被销毁,所以最好在onCreate方法中也执行onNewIntent中的逻辑
+     * @param intent
+     */
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
@@ -61,11 +69,17 @@ public class MainActivity extends BaseActivity implements FeedAdapter.OnFeedItem
         }
     }
 
+    /**
+     * 发布视频只需要滚动到第一个位置，且刷新第一个位置的数据就OK了
+     * @param photoUri
+     */
     private void showFeedLoadingItemDelayed(final Uri photoUri) {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
+                //滚动到第一个位置
                 rvPost.smoothScrollToPosition(0);
+                //刷新第一个位置的数据
                 adapter.showLoadingView(photoUri);
             }
         }, 500);
