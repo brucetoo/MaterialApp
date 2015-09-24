@@ -342,6 +342,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             return;
         }
 
+        //item执行动画条件是:现在item的位置大于上次动画item的位置
         if (position > lastAnimatedPosition) {
             lastAnimatedPosition = position;
             //事先设置itemview的高度
