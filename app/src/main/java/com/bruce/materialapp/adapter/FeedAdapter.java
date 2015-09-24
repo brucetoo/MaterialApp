@@ -71,6 +71,11 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+        /**
+         * 在此解释下之用一个Item的原因
+         * 第一个item只是在发布的时候才会出现动画效果，其实所有的显示东西都基本是差不多的
+         * 因此只需要用一个布局文件就OK了， 只需要在布局文件中控制显示和隐藏Loading的视图就OK
+         */
         View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_feed_loading, viewGroup, false);
 //        if(i == VIEW_TYPE_DEFAULT) {
 //            view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_feed, viewGroup, false);
@@ -80,13 +85,24 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         return new FeedViewHolder(view);
     }
 
+
+    /**
+     * 对外抛出何时需要显示Loading view的方法
+     * showLoadingView
+     * @param photoUri
+     */
     public void showLoadingView(Uri photoUri) {
         showLoadingView = true;
         this.photoUri = photoUri;
       //  notifyItemInserted(0);
-        notifyItemChanged(0);
+        notifyItemChanged(0); //只更新第一个Item
     }
 
+    /**
+     * itemType根据showLoadingView来判断是否是两个Item类型
+     * @param position
+     * @return
+     */
     @Override
     public int getItemViewType(int position) {
         if (showLoadingView) {
@@ -112,7 +128,7 @@ public class FeedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                 holder.ivFeedCenter.setImageResource(R.drawable.img_feed_center_2);
                 holder.ivFeedBottom.setImageResource(R.drawable.img_feed_bottom_2);
             }
-        } else if (getItemViewType(i) == VIEW_TYPE_LOADER) {
+        } else if (getItemViewType(i) == VIEW_TYPE_LOADER) { //显示LoadingVIew的逻辑
             Picasso.with(context).load(photoUri).into(holder.ivFeedCenter);
        //     Log.i("picasso-photouri:",photoUri);
          //   holder.ivFeedCenter.setImageResource(R.drawable.img_feed_center_2);
