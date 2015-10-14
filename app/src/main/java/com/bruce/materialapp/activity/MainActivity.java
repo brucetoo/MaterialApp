@@ -153,6 +153,7 @@ public class MainActivity extends BaseActivity implements FeedAdapter.OnFeedItem
                         startContentAnimation();
                     }
                 }).start();
+
     }
 
     /**
